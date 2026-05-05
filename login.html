@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Architect — Sign In</title>
+    <meta name="description" content="Sign in to Apex Architect and access your Formula 1 circuit design workspace.">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --red: #e10600;
+            --red-bright: #ff1e00;
+            --bg: #030407;
+            --surface: #06080d;
+            --surface2: #0b0f19;
+            --border: rgba(255,255,255,0.04);
+            --border-focus: rgba(225,6,0,0.8);
+            --text: #e2e8f0;
+            --text-muted: rgba(255,255,255,0.45);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ── Left panel ── */
+        .left-panel {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 56px;
+            overflow: hidden;
+            background: linear-gradient(160deg, #0a0101 0%, #030407 60%);
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 50%, rgba(225,6,0,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 20%, rgba(59,130,246,0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* Animated racing lines */
+        .racing-lines {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .racing-lines span {
+            display: block;
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(225,6,0,0.35), transparent);
+            animation: raceLine 4s linear infinite;
+            opacity: 0;
+        }
+        .racing-lines span:nth-child(1) { width: 65%; top: 22%; animation-delay: 0s; }
+        .racing-lines span:nth-child(2) { width: 45%; top: 38%; animation-delay: 1.3s; }
+        .racing-lines span:nth-child(3) { width: 75%; top: 55%; animation-delay: 0.7s; }
+        .racing-lines span:nth-child(4) { width: 35%; top: 70%; animation-delay: 2s; }
+        .racing-lines span:nth-child(5) { width: 55%; top: 84%; animation-delay: 0.4s; }
+
+        @keyframes raceLine {
+            0%   { left: -100%; opacity: 0; }
+            10%  { opacity: 1; }
+            80%  { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+
+        /* Big background track SVG */
+        .bg-track {
+            position: absolute;
+            right: -80px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.04;
+            pointer-events: none;
+        }
+
+        .left-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .logo-flag {
+            width: 48px;
+            height: 48px;
+            background: var(--red);
+            border-radius: 4px;
+            transform: skewX(-10deg);
+            flex-shrink: 0;
+            box-shadow: 0 0 32px rgba(225,6,0,0.4);
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            font-style: italic;
+            line-height: 1;
+        }
+
+        .hero-headline {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(32px, 4vw, 56px);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            font-style: italic;
+            line-height: 1.05;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .hero-headline span {
+            color: var(--red);
+        }
+
+        .hero-sub {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.7;
+            max-width: 400px;
+            letter-spacing: 0.02em;
+            margin-bottom: 44px;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .feature-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--red);
+            flex-shrink: 0;
+            box-shadow: 0 0 8px var(--red);
+        }
+
+        /* ── Right panel (form) ── */
+        .right-panel {
+            width: min(480px, 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 56px 48px;
+            background: rgba(6, 8, 13, 0.7);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border);
+            position: relative;
+            overflow-y: auto;
+            box-shadow: -20px 0 50px rgba(0,0,0,0.5);
+        }
+
+        .right-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--red), #ff4d4d, var(--red));
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .form-header {
+            margin-bottom: 36px;
+        }
+
+        .form-eyebrow {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--red);
+            margin-bottom: 10px;
+        }
+
+        .form-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .form-subtitle {
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* Tabs */
+        .auth-tabs {
+            display: flex;
+            background: var(--surface2);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 28px;
+            border: 1px solid var(--border);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 7px;
+            transition: all 0.22s ease;
+        }
+
+        .auth-tab.active {
+            background: var(--red);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(225,6,0,0.35);
+        }
+
+        /* Form fields */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group.hidden { display: none; }
+
+        label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--border-focus);
+            background: rgba(225,6,0,0.03);
+            box-shadow: 0 0 0 4px rgba(225,6,0,0.15);
+            transform: translateY(-1px);
+        }
+
+        input::placeholder { color: rgba(255,255,255,0.2); }
+
+        /* Password strength */
+        #strength-wrap { margin-top: 8px; display: none; }
+        .strength-bar {
+            height: 3px;
+            border-radius: 2px;
+            background: var(--surface2);
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        .strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s, background 0.3s;
+        }
+        #strength-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Error */
+        #auth-error {
+            display: none;
+            background: rgba(225,6,0,0.1);
+            border: 1px solid rgba(225,6,0,0.3);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #ff8080;
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn { from { opacity:0; transform:translateY(-4px);} to { opacity:1; transform:none; } }
+
+        /* Submit */
+        #auth-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--red), #ff4d4d);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-style: italic;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(225,6,0,0.3);
+        }
+
+        #auth-submit::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        #auth-submit:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 12px 30px rgba(225,6,0,0.5); 
+        }
+        #auth-submit:hover::after { transform: translateX(100%); }
+        #auth-submit:active { transform: translateY(0) scale(0.98); }
+
+        #auth-submit.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .guest-btn {
+            width: 100%;
+            padding: 12px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .guest-btn:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.2);
+            color: var(--text);
+        }
+
+        .footer-note {
+            margin-top: 28px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .left-panel { display: none; }
+            body { justify-content: center; }
+            .right-panel {
+                width: 100%;
+                border-left: none;
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Left decorative panel -->
+    <div class="left-panel">
+        <div class="racing-lines">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <!-- Large background track illustration -->
+        <svg class="bg-track" width="500" height="500" viewBox="0 0 200 200" fill="none" stroke="white" stroke-width="3">
+            <path d="M30,100 C30,45 90,20 120,20 C160,20 175,50 175,80 C175,110 155,125 155,125 C155,125 170,140 165,160 C158,185 130,185 110,175 C85,162 70,150 50,155 C25,161 20,140 20,120 C20,110 30,100 30,100Z"/>
+            <circle cx="45" cy="100" r="4" fill="white" stroke="none" opacity="0.6"/>
+            <circle cx="120" cy="25" r="4" fill="white" stroke="none" opacity="0.6"/>
+            <circle cx="172" cy="90" r="4" fill="white" stroke="none" opacity="0.6"/>
+        </svg>
+
+        <div class="left-content">
+            <div class="logo-block">
+                <div class="logo-flag"></div>
+                <div class="logo-text">Apex Architect</div>
+            </div>
+
+            <h1 class="hero-headline">
+                Design Your<br><span>Perfect</span><br>Grand Prix
+            </h1>
+
+            <p class="hero-sub">
+                The professional-grade platform for creating, analysing, and refining Formula 1 circuit layouts — from hairpins to high-speed sweepers.
+            </p>
+
+            <div class="feature-list">
+                <div class="feature-item"><div class="feature-dot"></div>Precision node-based circuit editor</div>
+                <div class="feature-item"><div class="feature-dot"></div>AI-powered track analysis & coaching</div>
+                <div class="feature-item"><div class="feature-dot"></div>DRS zones, sector markers & corner profiling</div>
+                <div class="feature-item"><div class="feature-dot"></div>Export to PNG & JSON for sharing</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="right-panel">
+        <div class="form-header">
+            <div class="form-eyebrow">Apex Architect Portal</div>
+            <div class="form-title" id="form-title">Welcome back</div>
+            <div class="form-subtitle" id="form-subtitle">Sign in to access your circuit library.</div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+            <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+        </div>
+
+        <!-- Error -->
+        <div id="auth-error"></div>
+
+        <!-- Name (signup only) -->
+        <div class="form-group hidden" id="group-name">
+            <label for="auth-name">Display Name</label>
+            <input type="text" id="auth-name" placeholder="Your name" autocomplete="name">
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label for="auth-email">Email Address</label>
+            <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <label for="auth-password">Password</label>
+            <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+            <div id="strength-wrap">
+                <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+                <span id="strength-label">Strength</span>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <button id="auth-submit" onclick="handleSubmit()">Enter Workspace</button>
+
+        <div class="footer-note">
+            Your data is securely synced to the cloud. Access your circuits from any device.
+        </div>
+    </div>
+
+    <script src="supabase-client.js"></script>
+    <script>
+        // If already logged in, skip to dashboard
+        (async () => {
+            const user = await ApexAuth.getUser();
+            if (user) window.location.replace('index.html');
+        })();
+
+        let mode = 'signin';
+
+        function switchTab(newMode) {
+            mode = newMode;
+            const isSignup = mode === 'signup';
+            document.getElementById('tab-signin').classList.toggle('active', !isSignup);
+            document.getElementById('tab-signup').classList.toggle('active', isSignup);
+            document.getElementById('form-title').textContent = isSignup ? 'Create your account' : 'Welcome back';
+            document.getElementById('form-subtitle').textContent = isSignup
+                ? 'Join Apex Architect and start designing.'
+                : 'Sign in to access your circuit library.';
+            document.getElementById('group-name').classList.toggle('hidden', !isSignup);
+            document.getElementById('auth-password').autocomplete = isSignup ? 'new-password' : 'current-password';
+            document.getElementById('strength-wrap').style.display = isSignup ? 'block' : 'none';
+            document.getElementById('auth-submit').textContent = isSignup ? 'Create Account' : 'Enter Workspace';
+            clearError();
+        }
+
+        function setError(msg) {
+            const el = document.getElementById('auth-error');
+            el.textContent = msg;
+            el.style.display = msg ? 'block' : 'none';
+        }
+        function clearError() { setError(''); }
+
+        document.getElementById('auth-password').addEventListener('input', function() {
+            if (mode !== 'signup') return;
+            const val = this.value;
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const colors = ['#e10600','#ff6a00','#ffcc00','#22c55e','#00d4aa'];
+            const labels = ['Very weak','Weak','Fair','Strong','Excellent'];
+            const pct    = [20, 40, 60, 80, 100];
+            const i = Math.max(0, score - 1);
+            const fill = document.getElementById('strength-fill');
+            fill.style.width = pct[i] + '%';
+            fill.style.background = colors[i];
+            document.getElementById('strength-label').textContent = labels[i];
+            document.getElementById('strength-label').style.color = colors[i];
+        });
+
+        async function handleSubmit() {
+            clearError();
+            const email    = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const name     = document.getElementById('auth-name').value.trim();
+
+            if (!email || !password) { setError('Please fill in all required fields.'); return; }
+            if (!email.includes('@')) { setError('Please enter a valid email address.'); return; }
+            if (mode === 'signup' && password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+
+            const btn = document.getElementById('auth-submit');
+            btn.classList.add('loading');
+            btn.innerHTML = '<span class="spinner"></span> Authenticating...';
+
+            const result = mode === 'signup'
+                ? await ApexAuth.signUp(email, password, name)
+                : await ApexAuth.signIn(email, password);
+
+            if (!result.ok) {
+                btn.classList.remove('loading');
+                btn.textContent = mode === 'signup' ? 'Create Account' : 'Enter Workspace';
+                setError(result.error);
+                return;
+            }
+            window.location.replace('index.html');
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
+    </script>
+
+</body>
+</html>
