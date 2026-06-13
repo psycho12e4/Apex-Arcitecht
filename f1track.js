@@ -8,7 +8,10 @@ class TrackNode {
         this.sector = 1;
         this.isDRS = false;
         this.type = 'straight';
+<<<<<<< HEAD
         this.turnNumber = 0;
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
     }
 }
 class App {
@@ -45,9 +48,12 @@ class App {
         this.saveTimeout = null;
         this.STORAGE_KEY = 'apex_projects_v1';
         this.hasUnsavedChanges = false;
+<<<<<<< HEAD
         this.history = [];
         this.historyIndex = -1;
         this.isApplyingHistory = false;
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
         this.canvas = document.getElementById('trackCanvas');
         this.ctx = this.canvas.getContext('2d');
         this.init();
@@ -194,6 +200,7 @@ class App {
                 if (!this.isPanning && !this.isBoxSelecting)
                     this.canvas.style.cursor = 'grab';
             }
+<<<<<<< HEAD
             
             // Undo/Redo Shortcuts
             const isCmdOrCtrl = e.ctrlKey || e.metaKey;
@@ -211,6 +218,8 @@ class App {
                     this.redo();
                 }
             }
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
         });
         window.addEventListener('keyup', (e) => {
             if (e.code === 'Space') {
@@ -264,6 +273,7 @@ class App {
                     this.draggedHandle = 'none';
                     this.draggedNodeIdx = -1;
                 }
+<<<<<<< HEAD
                 else if (this.currentTool === 'turns' && hit.handle === 'node') {
                     if (this.nodes[hit.idx].turnNumber > 0) {
                         this.nodes[hit.idx].turnNumber = 0;
@@ -275,6 +285,8 @@ class App {
                         this.nodes[hit.idx].turnNumber = maxTurn + 1;
                     }
                 }
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
                 else {
                     if (this.currentTool === 'select' && e.shiftKey) {
                         if (this.selectedIndices.has(hit.idx)) {
@@ -419,9 +431,12 @@ class App {
         });
     }
     setupUIListeners() {
+<<<<<<< HEAD
         // Undo / Redo buttons
         document.getElementById('undo-btn').addEventListener('click', () => this.undo());
         document.getElementById('redo-btn').addEventListener('click', () => this.redo());
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
         // Project Management Listeners
         const nameInput = document.getElementById('project-name-input');
         nameInput.addEventListener('change', () => {
@@ -509,11 +524,14 @@ class App {
                 this.draw();
             }
         };
+<<<<<<< HEAD
         document.getElementById('corner-radius').addEventListener('change', () => {
             if (this.selectedIndices.size > 0) {
                 this.queueAutoSave();
             }
         });
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
         document.querySelectorAll('.corner-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const type = e.currentTarget.dataset.type;
@@ -599,7 +617,11 @@ class App {
                 this.queueAutoSave();
             }
         };
+<<<<<<< HEAD
         document.getElementById('clear-btn').onclick = () => { this.nodes = []; this.pitNodes = []; this.selectedIndices.clear(); this.isClosedTrack = false; document.getElementById('toggle-close-btn').classList.remove('toggle-closed'); this.updateUI(); this.draw(); this.queueAutoSave(); };
+=======
+        document.getElementById('clear-btn').onclick = () => { this.nodes = []; this.pitNodes = []; this.selectedIndices.clear(); this.isClosedTrack = false; document.getElementById('toggle-close-btn').classList.remove('toggle-closed'); this.updateUI(); this.draw(); };
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
         // Export Image
         document.getElementById('export-img-btn').onclick = () => this.exportImage();
         // Import JSON
@@ -659,7 +681,10 @@ class App {
                             node.type = n.type || 'straight';
                             node.cpIn = n.cpIn ? { x: n.cpIn.x, y: n.cpIn.y } : null;
                             node.cpOut = n.cpOut ? { x: n.cpOut.x, y: n.cpOut.y } : null;
+<<<<<<< HEAD
                             node.turnNumber = n.turnNumber || 0;
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
                             return node;
                         });
                         this.draw();
@@ -1041,6 +1066,7 @@ class App {
             this.ctx.fillStyle = 'rgba(255,255,255,0.7)';
             this.ctx.font = `bold ${12 / this.scale}px Orbitron`;
             this.ctx.textAlign = 'center';
+<<<<<<< HEAD
             this.ctx.fillText(`P${i + 1}`, n.x, n.y - (18 / this.scale));
             if (n.turnNumber > 0) {
                 const turnStr = n.turnNumber.toString().padStart(2, '0');
@@ -1060,6 +1086,9 @@ class App {
                 this.ctx.fillText(turnStr, markerX, markerY);
                 this.ctx.textBaseline = 'alphabetic';
             }
+=======
+            this.ctx.fillText(`T${i + 1}`, n.x, n.y - (18 / this.scale));
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
         });
         this.pitNodes.forEach((p, i) => {
             const active = this.selectedPitIndex === i;
@@ -1156,6 +1185,7 @@ class App {
         context.lineJoin = 'round';
         context.setLineDash([14, 8]);
         context.beginPath();
+<<<<<<< HEAD
         const len = this.pitNodes.length;
         context.moveTo(this.pitNodes[0].x, this.pitNodes[0].y);
         for (let i = 0; i < len - 1; i++) {
@@ -1175,6 +1205,11 @@ class App {
             const cp2y = p2.y - ty2;
 
             context.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+=======
+        context.moveTo(this.pitNodes[0].x, this.pitNodes[0].y);
+        for (let i = 1; i < this.pitNodes.length; i++) {
+            context.lineTo(this.pitNodes[i].x, this.pitNodes[i].y);
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
         }
         context.stroke();
         context.restore();
@@ -1222,6 +1257,7 @@ class App {
         let totalDist = 0;
         for (let i = 0; i < endLoop; i++) {
             const p1 = this.nodes[i];
+<<<<<<< HEAD
             const p2 = this.nodes[(i + 1) % len];
             const pPrev = this.nodes[(i - 1 + len) % len];
             
@@ -1241,11 +1277,17 @@ class App {
                 }
             }
             
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
             let segmentDist = 0;
             const pts = 20;
             for (let s = 0; s < pts; s++) {
                 const t1 = s / pts;
                 const t2 = (s + 1) / pts;
+<<<<<<< HEAD
+=======
+                const p2 = this.nodes[(i + 1) % len];
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
                 const c1 = this.getCtrlPts(i).pOut;
                 const c2 = this.getCtrlPts((i + 1) % len).pIn;
                 const pos1 = this.getBezierPoint(t1, p1, c1, c2, p2);
@@ -1254,6 +1296,7 @@ class App {
             }
             const physicalLength = segmentDist / this.pxPerUnit;
             totalDist += physicalLength;
+<<<<<<< HEAD
             
             let detectedShape = 'Straight';
             let speedZone = 'Full Throttle';
@@ -1278,6 +1321,12 @@ class App {
             report += `  ↳ Estimated Speed: ${speedZone}\n\n`;
         }
         report += `Total AI Calculated Track Length: ${totalDist.toFixed(2)} ${this.scaleUnit.toUpperCase()}`;
+=======
+            const typeStr = p1.type === 'straight' ? 'Straight' : `Turn (Type: ${p1.type})`;
+            report += `Segment ${i + 1} (${typeStr}): ${physicalLength.toFixed(2)} ${this.scaleUnit.toUpperCase()}\n`;
+        }
+        report += `\nTotal AI Calculated Track Length: ${totalDist.toFixed(2)} ${this.scaleUnit.toUpperCase()}`;
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
         alert(report);
     }
     getTrackLengthKM() {
@@ -1423,7 +1472,10 @@ class App {
                 node.type = n.type || 'straight';
                 node.cpIn = n.cpIn ? { x: n.cpIn.x, y: n.cpIn.y } : null;
                 node.cpOut = n.cpOut ? { x: n.cpOut.x, y: n.cpOut.y } : null;
+<<<<<<< HEAD
                 node.turnNumber = n.turnNumber || 0;
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
                 return node;
             });
         }
@@ -1467,7 +1519,10 @@ class App {
         if (this.saveTimeout)
             window.clearTimeout(this.saveTimeout);
         this.saveTimeout = window.setTimeout(() => this.saveProject(), 1000);
+<<<<<<< HEAD
         this.recordState();
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
     }
     saveProject() {
         if (!this.currentProjectId || !this.hasUnsavedChanges)
@@ -1593,6 +1648,7 @@ class App {
         const listEl = document.getElementById('ai-suggestions-list');
         const suggestions = [];
         const totalNodes = this.nodes.length;
+<<<<<<< HEAD
         const len = totalNodes;
         const drsCount = this.nodes.filter(n => n.isDRS).length;
         let hairpins = 0;
@@ -1624,6 +1680,12 @@ class App {
             else if (angleDeg > 15 && angleDeg <= 45) sweepers++;
             else if (angleDeg <= 15) straights++;
         }
+=======
+        const drsCount = this.nodes.filter(n => n.isDRS).length;
+        const hairpins = this.nodes.filter(n => n.type === 'hairpin').length;
+        const sweepers = this.nodes.filter(n => n.type === 'high').length;
+        const straights = this.nodes.filter(n => n.type === 'straight').length;
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
         // --- Track Completeness ---
         if (!this.isClosedTrack) {
             suggestions.push({ icon: '⚠️', color: 'yellow', title: 'OPEN CIRCUIT', text: 'Your track is not closed. Press "Auto-Close Circuit" to connect the last point to the first.' });
@@ -1691,6 +1753,7 @@ class App {
                     </div>
                 `).join('');
     }
+<<<<<<< HEAD
     getHistorySnapshot() {
         return {
             nodes: this.nodes.map(n => ({
@@ -1808,6 +1871,8 @@ class App {
             }
         }
     }
+=======
+>>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
 }
 window.addEventListener('load', () => {
     window.appInstance = new App();
