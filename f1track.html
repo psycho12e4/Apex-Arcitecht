@@ -555,7 +555,7 @@
     <script>
         (async () => {
             // ── Auth Guard ──────────────────────────────────────────────
-            const { data: { user: rawUser } } = await supabase.auth.getUser();
+            const { data: { user: rawUser } } = await window.supabase.auth.getUser();
             if (!rawUser) { window.location.replace('login.html'); return; }
             if (!rawUser.email_confirmed_at) { window.location.replace('index.html'); return; }
             const user = {
