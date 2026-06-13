@@ -5,11 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apex Architect - Workspace Dashboard</title>
-    <script>
-        if (!localStorage.getItem('apex_sb_session')) {
-            window.location.replace('login.html');
-        }
-    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-client.js"></script>
@@ -239,9 +234,7 @@
         APEX ARCHITECT DESIGN SYSTEMS &copy; 2026
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="native-bridge.js"></script>
-    <script src="supabase-client.js"></script>
     <script>
         (async () => {
             // ── Auth Guard ────────────────────────────────────────────────
