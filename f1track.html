@@ -339,7 +339,6 @@
                 </div>
 
                 <div class="sidebar-section">
-<<<<<<< HEAD
                     <div class="mb-3 flex items-center justify-between">
                         <div>
                             <label class="text-[10px] uppercase font-bold tracking-widest text-white/40 block">Design Tools</label>
@@ -357,12 +356,6 @@
                                 </svg>
                             </button>
                         </div>
-=======
-                    <div class="mb-3">
-                        <label class="text-[10px] uppercase font-bold tracking-widest text-white/40 block">Design
-                            Tools</label>
-                        <p class="mt-1 text-[10px] text-white/35">Choose how clicks behave on the circuit canvas.</p>
->>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <button data-tool="draw"
@@ -430,7 +423,6 @@
                             </svg>
                             <span class="text-[10px] font-bold">Pits</span>
                         </button>
-<<<<<<< HEAD
                         <button data-tool="turns"
                             class="tool-btn p-3 rounded bg-white/5 border border-white/10 hover:border-pink-500 flex flex-col items-center gap-2 group transition"
                             id="tool-turns">
@@ -440,8 +432,6 @@
                             </svg>
                             <span class="text-[10px] font-bold">Turns</span>
                         </button>
-=======
->>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
                     </div>
                 </div>
 
@@ -545,7 +535,6 @@
     <script>
         (async () => {
             // ── Auth Guard ──────────────────────────────────────────────
-<<<<<<< HEAD
             const { data: { user: rawUser } } = await supabase.auth.getUser();
             if (!rawUser) { window.location.replace('login.html'); return; }
             if (!rawUser.email_confirmed_at) { window.location.replace('index.html'); return; }
@@ -554,10 +543,6 @@
                 email: rawUser.email,
                 displayName: rawUser.user_metadata?.display_name || rawUser.email.split('@')[0]
             };
-=======
-            const user = await ApexAuth.getUser();
-            if (!user) { window.location.replace('login.html'); return; }
->>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
 
             // ── Show user in toolbar ─────────────────────────────────────
             const userProfileMini = document.getElementById('user-profile-mini');

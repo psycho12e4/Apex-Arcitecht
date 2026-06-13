@@ -19,12 +19,9 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     }
 });
 
-<<<<<<< HEAD
 // Expose the client instance globally for pages expecting 'supabase'
 window.supabase = db;
 
-=======
->>>>>>> c963ea1e95fc51b581f6d52e73abd3787075506b
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 
 const ApexAuth = {
