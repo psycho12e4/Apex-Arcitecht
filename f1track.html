@@ -584,7 +584,11 @@
                 const localProjects = JSON.parse(localStorage.getItem('apex_projects_v1') || '[]');
                 if (!localProjects.find(p => p.id === urlId)) {
                     console.log('[Sync] Project missing locally, fetching from Supabase...');
-                    await ApexProjects.fetchAll(); // This refreshes localStorage
+                    const cloudProjects = await ApexProjects.fetchAll(); // This refreshes localStorage
+                    if (window.appInstance) {
+                        const cloudProj = cloudProjects.find(p => p.id === urlId);
+                        if (cloudProj) window.appInstance.loadProjectFromData(cloudProj);
+                    }
                 }
             }
 

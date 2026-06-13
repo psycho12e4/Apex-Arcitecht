@@ -1350,7 +1350,13 @@ class App {
     }
     // Project Management Methods
     generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substring(2);
+        if (crypto && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     }
     getAllProjects() {
         try {
@@ -1398,9 +1404,12 @@ class App {
     loadProject(id) {
         const projects = this.getAllProjects();
         const proj = projects.find(p => p.id === id);
-        if (!proj)
-            return;
-        this.currentProjectId = id;
+        if (!proj) return;
+        this.loadProjectFromData(proj);
+    }
+    loadProjectFromData(proj) {
+        if (!proj) return;
+        this.currentProjectId = proj.id;
         const nameInput = document.getElementById('project-name-input');
         nameInput.value = proj.name;
         this.nodes = [];
@@ -1478,12 +1487,25 @@ class App {
         let bgImageDataUrl = null;
         if (this.bgImage) {
             try {
+                const MAX_DIM = 1200;
+                let w = this.bgImage.width;
+                let h = this.bgImage.height;
+                let scaleAdjustment = 1.0;
+                if (w > MAX_DIM || h > MAX_DIM) {
+                    const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
+                    w = Math.floor(w * ratio);
+                    h = Math.floor(h * ratio);
+                    scaleAdjustment = 1.0 / ratio;
+                }
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = this.bgImage.width;
-                tempCanvas.height = this.bgImage.height;
+                tempCanvas.width = w;
+                tempCanvas.height = h;
                 const tCtx = tempCanvas.getContext('2d');
-                tCtx.drawImage(this.bgImage, 0, 0);
-                bgImageDataUrl = tempCanvas.toDataURL('image/png');
+                tCtx.fillStyle = '#ffffff';
+                tCtx.fillRect(0, 0, w, h);
+                tCtx.drawImage(this.bgImage, 0, 0, w, h);
+                bgImageDataUrl = tempCanvas.toDataURL('image/jpeg', 0.5);
+                this.bgScale *= scaleAdjustment; // Adjust current scale
             }
             catch (e) { }
         }

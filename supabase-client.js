@@ -88,7 +88,11 @@ const ApexProjects = {
         }));
 
         // Write to localStorage so f1track.js can read it directly
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(projects));
+        try {
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(projects));
+        } catch (err) {
+            console.warn('[Sync] Could not cache projects to localStorage. Quota exceeded.', err);
+        }
         return projects;
     },
 
